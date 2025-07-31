@@ -1,12 +1,25 @@
 package Libary.Com;
-
 import Model.Person;
-import java.util.ArrayList;
-import java.util.List;
+import Model.Teacher;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 public class Library {
     private List<Book> books = new ArrayList<>();
-    private List<Person> requestQueue = new ArrayList<>();
+
+    private PriorityQueue<Person> requestQueue = new PriorityQueue<>(new Comparator<Person>() {
+        @Override
+         public int compare(Person first, Person secound) {
+            if (first instanceof Teacher && !(secound instanceof Teacher)) {
+                return -1; // Teacher first
+            } else if (!(first instanceof Teacher) && secound instanceof Teacher) {
+                return 1;  // Student after
+            } else {
+                return 0;
+            }
+        }
+    });
 
     public void addBook(Book book) {
         books.add(book);
@@ -23,22 +36,30 @@ public class Library {
 
     public void requestBook(Person person) {
         requestQueue.add(person);
+        saveRequestToFile(person);
         System.out.println(person.getName() + " has requested a book.");
+    }
+
+    public void saveRequestToFile(Person person) {
+        try (FileWriter writer = new FileWriter("requests.txt", true)) {
+            writer.write(person.getName() + " - " + person.getClass().getSimpleName() + "\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void lendBook(Book book) {
         if (!book.isAvailable()) {
-            System.out.println("Book '" + book.getTitle() + "' is not available.");
+            System.out.println("Sorry, the book is already lent out.");
             return;
         }
 
-        if (requestQueue.isEmpty()) {
-            System.out.println("No one in the queue to lend the book to.");
-            return;
+        if (!requestQueue.isEmpty()) {
+            Person person = requestQueue.poll();
+            book.setAvailable(false);
+            System.out.println(book.getTitle() + " has been lent to " + person.getName() + " (" + person.getClass().getSimpleName() + ")");
+        } else {
+            System.out.println("No requests in the queue for this book.");
         }
-
-        Person person = requestQueue.remove(0);
-        book.setAvailable(false);
-        System.out.println("Book '" + book.getTitle() + "' has been lent to " + person.getName());
     }
 }
