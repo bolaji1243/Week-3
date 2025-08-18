@@ -8,18 +8,17 @@ import java.util.*;
 public class Library {
     private List<Book> books = new ArrayList<>();
 
-    private PriorityQueue<Person> requestQueue = new PriorityQueue<>(new Comparator<Person>() {
-        @Override
-         public int compare(Person first, Person secound) {
-            if (first instanceof Teacher && !(secound instanceof Teacher)) {
-                return -1; // Teacher first
-            } else if (!(first instanceof Teacher) && secound instanceof Teacher) {
-                return 1;  // Student after
-            } else {
-                return 0;
-            }
+    private PriorityQueue<Person> requestQueue = new PriorityQueue<>((first
+            , second) -> {
+        if (first instanceof Teacher && !(second instanceof Teacher)) {
+            return -1;
+        } else if (!(first instanceof Teacher) && second instanceof Teacher) {
+            return 1;
+        } else {
+            return 0;
         }
     });
+
 
     public void addBook(Book book) {
         books.add(book);

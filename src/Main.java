@@ -26,7 +26,6 @@ public class Main {
 
         library.showAvailableBooks();
 
-
         library.lendBook(book1);
 
 
